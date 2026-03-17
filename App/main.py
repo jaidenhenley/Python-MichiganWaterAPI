@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from app.data import sample_beaches, Beach
+from app.data import sample_beaches
+from app.models import Beach
 
 app = FastAPI()
 
