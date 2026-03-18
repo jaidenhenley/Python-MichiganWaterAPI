@@ -4,9 +4,24 @@ from app.data import sample_beaches
 from app.models import Beach
 
 from app.services.ndbc import fetch_ndbc_conditions
+from app.services.nws import fetch_nws_alerts
+from app.services.epa import fetch_ecoli
 
 app = FastAPI()
 
+# @app.get("/conditions/{station_id}")
+# async def get_conditions(station_id: str):
+#     data = await fetch_conditions(station_id)
+#     return data
+
+@app.get("/ecoli")
+async def get_ecoli(start: str, end: str):
+    report = await fetch_ecoli(start_date=start, end_date=end)
+    return report
+
+@app.get("/alerts")
+async def get_alerts(lat: float, lon: float):
+    return await fetch_nws_alerts(lat, lon)
 
 @app.get("/ndbc/{station_id}")
 async def get_ndbc_conditions(station_id: str):
