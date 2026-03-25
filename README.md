@@ -42,6 +42,7 @@ The API runs at `http://localhost:8000`. Hit `/docs` for the auto-generated Swag
 
 Deployed on Render. Ran into some issues during deployment like missing dependencies, uvicorn misconfiguration, a committed `.venv`, and a macOS case-sensitivity git issue with the `app/` folder. Worked through all of them.
 
-## Developer
+## Developers
 
 Jaiden Henley | [Portfolio](https://jaidenhenley.github.io/JaidenHenleyPort/) | [LinkedIn](https://www.linkedin.com/in/jaiden-henley) | [jaidenhenleydev@gmail.com](mailto:jaidenhenleydev@gmail.com)
+George Clinkscales | [Portfolio](https://geoclink.github.io/portfolio/) | [LinkedIn](https://www.linkedin.com/in/george-clinkscales/) | [1lclink2@att.net](mailto:1lclink2@att.net)
