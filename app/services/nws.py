@@ -57,6 +57,48 @@ async def fetch_weather_conditions(station_id: str):
     data = response.json()
     return data
 
+async def fetch_nws_forecast(lat: float, lon: float):
+    headers = {
+        "User-Agent": "MichiganWaterAPI/1.0",
+        "Accept": "application/geo+json",
+    }
+
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        points_response = await client.get(f"https://api.weather.gov/points/{lat},{lon}")
+
+        if points_response.status_code == 400:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid latitude or longitude passed to NWS",
+            )
+
+        if points_response.status_code >= 500:
+            raise HTTPException(
+                status_code=502,
+                detail="NWS service is unavailable right now",
+            )
+
+        points_response.raise_for_status()
+
+        forecast_url = points_response.json().get("properties", {}).get("forecast")
+        if not forecast_url:
+            raise HTTPException(
+                status_code=502,
+                detail="NWS forecast URL was missing from the points response",
+            )
+
+        response = await client.get(forecast_url)
+
+    if response.status_code >= 500:
+        raise HTTPException(
+            status_code=502,
+            detail="NWS service is unavailable right now",
+        )
+
+    response.raise_for_status()
+
+    return response.json()
+
 async def fetch_nws_alerts(lat: float, lon: float):
     url = f"https://api.weather.gov/alerts/active?point={lat},{lon}"
     headers = {
