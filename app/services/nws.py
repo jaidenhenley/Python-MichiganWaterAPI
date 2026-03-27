@@ -22,34 +22,30 @@ def _is_beach_relevant(text: str) -> bool:
     lowered = text.lower()
     return any(keyword in lowered for keyword in BEACH_KEYWORDS)
 
+
 async def fetch_weather_conditions(station_id: str):
     url = f"https://api.weather.gov/stations/{station_id}/observations"
     headers = {
         "User-Agent": "MichiganWater/API/1.0",
         "Accept": "application/geo+json",
     }
-    
+
     params = {"limit": 1}
 
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client: 
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
         response = await client.get(url, params=params)
 
     if response.status_code == 400:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid Station ID passed to NWS"
-        )
+        raise HTTPException(status_code=400, detail="Invalid Station ID passed to NWS")
 
     if response.status_code == 404:
         raise HTTPException(
-            status_code=404,
-            detail=f"Station '{station_id}' not found in NWS"
+            status_code=404, detail=f"Station '{station_id}' not found in NWS"
         )
 
     if response.status_code >= 500:
         raise HTTPException(
-            status_code=502,
-            detail="NWS service is unavailable right now"
+            status_code=502, detail="NWS service is unavailable right now"
         )
 
     response.raise_for_status()
@@ -57,47 +53,54 @@ async def fetch_weather_conditions(station_id: str):
     data = response.json()
     return data
 
+
+async def fetch_grid_points(lat: float, lon: float):
+    url = f"https://api.weather.gov/gridpoints/points/{round(lat,4)},{round(lon,4)}"
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        properties = json.get("properties", {})
+
+        grid_id = properties.get("gridId")
+        grid_x = properties.get("gridX")
+        grid_y = properties.get("gridY")
+
+        return {
+            "gridId": grid_id,
+            "gridX": grid_x,
+            "gridY": grid_y,
+            "forecastURL": properties.get("forecast"),
+        }
+    else:
+        print("Error {response.status_code}")
+        return None
+
+
 async def fetch_nws_forecast(lat: float, lon: float):
+
+    fetch_grid_points(lat=lat, lon=lon)
+
+    url = f"https://api.weather.gov/gridpoints/{gridId}/{gridX},{gridY}/forecast"
+
     headers = {
         "User-Agent": "MichiganWaterAPI/1.0",
         "Accept": "application/geo+json",
     }
 
     async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-        points_response = await client.get(f"https://api.weather.gov/points/{lat},{lon}")
+        response = await client.get(url)
 
-        if points_response.status_code == 400:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid latitude or longitude passed to NWS",
-            )
-
-        if points_response.status_code >= 500:
-            raise HTTPException(
-                status_code=502,
-                detail="NWS service is unavailable right now",
-            )
-
-        points_response.raise_for_status()
-
-        forecast_url = points_response.json().get("properties", {}).get("forecast")
-        if not forecast_url:
-            raise HTTPException(
-                status_code=502,
-                detail="NWS forecast URL was missing from the points response",
-            )
-
-        response = await client.get(forecast_url)
-
-    if response.status_code >= 500:
-        raise HTTPException(
-            status_code=502,
-            detail="NWS service is unavailable right now",
-        )
+        
 
     response.raise_for_status()
 
-    return response.json()
+    data = response.json()
+    return data
+
+
+
 
 async def fetch_nws_alerts(lat: float, lon: float):
     url = f"https://api.weather.gov/alerts/active?point={lat},{lon}"
@@ -111,14 +114,12 @@ async def fetch_nws_alerts(lat: float, lon: float):
 
     if response.status_code == 400:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid latitude or longitude passed to NWS"
+            status_code=400, detail="Invalid latitude or longitude passed to NWS"
         )
 
     if response.status_code >= 500:
         raise HTTPException(
-            status_code=502,
-            detail="NWS service is unavailable right now"
+            status_code=502, detail="NWS service is unavailable right now"
         )
 
     response.raise_for_status()
