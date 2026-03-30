@@ -4,13 +4,18 @@ from typing import Optional
 
 from app.data import sample_beaches
 from app.models import Beach
+from app.models import BeachModelResponse
 
 
+from dotenv import load_dotenv
+load_dotenv()
 
 from app.services.ndbc import fetch_ndbc_conditions
 from app.services.nws import fetch_nws_alerts
 from app.services.nws import fetch_weather_conditions
 from app.services.nws import fetch_nws_forecast
+
+from app.services.nws import parse_alerts, parse_forecast, parse_weather_conditions
 
 
 app = FastAPI()
@@ -53,9 +58,8 @@ def get_beaches(
     return results
 
 
-@app.get("/beaches/{beach_id}")
-@app.get("/beaches/{beach_id}/details")
-async def get_beach(beach_id: int) -> dict:
+@app.get("/beaches/{beach_id}/details", response_model=BeachModelResponse)
+async def get_beach(beach_id: int) -> BeachModelResponse:
     beach = next((b for b in sample_beaches if b["id"] == beach_id), None)
     if not beach: 
         raise HTTPException(status_code=404, detail="Beach not found")
@@ -74,10 +78,9 @@ async def get_beach(beach_id: int) -> dict:
     alerts = alerts_result if not isinstance(alerts_result, Exception) else None
     forecast = forecast_result if not isinstance(forecast_result, Exception) else None
 
-    return {
-        "beach": beach["name"],
-        "weather": weather,
-        "buoy": buoy,
-        "alerts": alerts,
-        "forecast": forecast,
-    }
+    return BeachModelResponse(
+        weather=parse_weather_conditions(weather) if weather else None,
+        forecast=parse_forecast(forecast) if forecast else [],
+        buoy_data=buoy if not isinstance(buoy, Exception) else None,
+        alerts=parse_alerts(alerts) if alerts else [] 
+    )

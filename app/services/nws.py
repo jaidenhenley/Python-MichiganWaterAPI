@@ -3,6 +3,11 @@ import httpx
 from fastapi import HTTPException
 
 from app.models import WeatherAlert
+from app.models import WeatherConditions
+from app.models import WeatherAlert
+from app.models import Forecast
+
+
 
 BEACH_KEYWORDS = [
     "swim",
@@ -53,6 +58,18 @@ async def fetch_weather_conditions(station_id: str):
     data = response.json()
     return data
 
+def parse_weather_conditions(data: dict) -> WeatherConditions:
+    props = data["features"][0]["properties"]
+    return WeatherConditions(
+        station_id=props.get("station", "").split("/")[-1],
+        text_description=props.get("textDescription", ""),
+        temperature_c=props["temperature"]["value"],
+        humidity=props["relativeHumidity"]["value"],
+        wind_speed_km=props["windSpeed"]["value"],
+        wind_chill_c=props["windChill"]["value"],
+    )
+
+
 async def fetch_nws_forecast(lat: float, lon: float):
     headers = {
         "User-Agent": "MichiganWaterAPI/1.0",
@@ -97,6 +114,27 @@ async def fetch_nws_forecast(lat: float, lon: float):
     return response.json()
 
 
+def parse_forecast(data: dict) -> List[Forecast]:
+    periods = data["properties"]["periods"]
+    return [
+        Forecast(
+            number=p["number"],
+            name=p["name"],
+            startTime=p["startTime"],
+            endTime=p["endTime"],
+            isDaytime=p["isDaytime"],
+            temp=p["temperature"],
+            tempUnit=p["temperatureUnit"],
+            probOfPrecip=p["probabilityOfPrecipitation"]["value"] or 0.0,
+            windSpeed=p["windSpeed"],
+            windDirection=p["windDirection"],
+            icon=p["icon"],
+            shortForecast=p["shortForecast"],
+            detailForecast=p["detailedForecast"],
+        )
+        for p in periods
+    ]
+
 async def fetch_nws_alerts(lat: float, lon: float):
     url = f"https://api.weather.gov/alerts/active?point={lat},{lon}"
     headers = {
@@ -121,3 +159,14 @@ async def fetch_nws_alerts(lat: float, lon: float):
 
     data = response.json()
     return data
+
+def parse_alerts(data: dict) -> List[WeatherAlert]:
+    return [
+        WeatherAlert(
+            headline=f["properties"]["headline"],
+            severity=f["properties"].get("severity"),
+            description=f["properties"].get("description"),
+            expires=f["properties"].get("expires"),
+        )
+        for f in data.get("features", [])
+    ]
