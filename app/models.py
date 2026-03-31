@@ -52,7 +52,7 @@ class WeatherConditions(BaseModel):
     temperature_c: Optional[float] = None
     humidity: Optional[float] = None
     wind_speed_km: Optional[float] = None
-    wind_chill_c: Optional[int] = None
+    wind_chill_c: Optional[float] = None
 
 class Forecast(BaseModel):
     number: int
@@ -69,8 +69,18 @@ class Forecast(BaseModel):
     shortForecast: str
     detailForecast: str
 
+class Traffic(BaseModel):
+    currentSpeed: int
+    freeFlowSpeed: int
+    currentTravelTime: int
+    freeFlowTravelTime: int
+    confidence: float
+    roadClosures: bool
+    
+
 class BeachModelResponse(BaseModel):
     weather: Optional[WeatherConditions] = None
     forecast: List[Forecast] = []
     buoy_data: Optional[WaterConditions] = None
     alerts: List[WeatherAlert] = []
+    traffic: List[Traffic] = []
