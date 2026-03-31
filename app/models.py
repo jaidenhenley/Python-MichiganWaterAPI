@@ -49,17 +49,12 @@ class WeatherAlert(BaseModel):
 class WeatherConditions(BaseModel):
     station_id: str
     text_description: str
-    temperature_c: float
-    humidity: float
-    wind_speed_km: float
-    wind_chill_c: int
+    temperature_c: Optional[float] = None
+    humidity: Optional[float] = None
+    wind_speed_km: Optional[float] = None
+    wind_chill_c: Optional[float] = None
 
-class BeachModelResponse(BaseModel):
-    forecast: List[WeatherConditions]
-    buoy_data: List[WaterConditions]
-    alerts: List[WeatherAlert]
-
-class Forecast(BaseModel): 
+class Forecast(BaseModel):
     number: int
     name: str
     startTime: datetime
@@ -68,8 +63,24 @@ class Forecast(BaseModel):
     temp: int
     tempUnit: str
     probOfPrecip: float
-    windSpeed: int
+    windSpeed: str
     windDirection: str
     icon: str
     shortForecast: str
     detailForecast: str
+
+class Traffic(BaseModel):
+    currentSpeed: int
+    freeFlowSpeed: int
+    currentTravelTime: int
+    freeFlowTravelTime: int
+    confidence: float
+    roadClosures: bool
+    
+
+class BeachModelResponse(BaseModel):
+    weather: Optional[WeatherConditions] = None
+    forecast: List[Forecast] = []
+    buoy_data: Optional[WaterConditions] = None
+    alerts: List[WeatherAlert] = []
+    traffic: List[Traffic] = []
