@@ -22,6 +22,7 @@ from app.services.tomtom import fetch_traffic_conditions, parse_traffic
 
 
 
+
 app = FastAPI()
 
 @app.get("/alerts")
