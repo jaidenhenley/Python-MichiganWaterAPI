@@ -90,4 +90,4 @@ class BeachModelResponse(BaseModel):
     buoy_data: Optional[WaterConditions] = None
     alerts: List[WeatherAlert] = []
     traffic: List[Traffic] = []
-
+    holiday: List[Holiday] = []

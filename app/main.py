@@ -4,6 +4,7 @@ from typing import Optional
 
 from app.data import sample_beaches
 from app.models import Beach
+from app.models import Holiday
 from app.models import BeachModelResponse
 
 
@@ -19,49 +20,16 @@ from app.services.nws import parse_alerts, parse_forecast, parse_weather_conditi
 
 from app.services.tomtom import fetch_traffic_conditions, parse_traffic
 
-
+from app.services.nagerdate import fetch_holidays, parse_holiday
 
 
 
 app = FastAPI()
 
-@app.get("/alerts")
-async def get_alerts(lat: float, lon: float) -> dict:
-    return await fetch_nws_alerts(lat, lon)
-
-@app.get("/forecast/{station_id}")
-async def get_weather_conditions(station_id: str) -> dict:
-    return await fetch_weather_conditions(station_id)
-
-@app.get("/ndbc/{station_id}")
-async def get_ndbc_conditions(station_id: str) -> dict:
-    return await fetch_ndbc_conditions(station_id)
-
-@app.get("/")
-def root() -> dict:
-    return {"message": "Michigan Water API is running"}
-
-
-@app.get("/health")
-def health() -> dict:
-    return {"status": "ok"}
-
-
-@app.get("/beaches", response_model=list[Beach])
-def get_beaches(
-    county: Optional[str] = Query(None, description="Filter by county name"),
-    lake: Optional[str] = Query(None, description="Filter by lake name"),
-    status: Optional[str] = Query(None, description="Filter by status: safe, advisory, closed")
-) -> list[Beach]: 
-    results = sample_beaches
-    if county:
-        results = [b for b in results if b["county"].lower() == county.lower()]
-    if lake:
-        results = [b for b in results if lake.lower() in b["lake"].lower()]
-    if status:
-        results = [b for b in results if b["status"].lower() == status.lower()]
-    return results
-
+@app.get("/holiday/{countryCode}/{year}", response_model=list[Holiday])
+async def get_holidays(countryCode: str, year: int) -> list:
+    data = await fetch_holidays(countryCode=countryCode, year=year)
+    return parse_holiday(data)
 
 @app.get("/beaches/{beach_id}/details", response_model=BeachModelResponse)
 async def get_beach(beach_id: int) -> BeachModelResponse:
@@ -69,12 +37,13 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
     if not beach: 
         raise HTTPException(status_code=404, detail="Beach not found")
 
-    weather_result, buoy_result, alerts_result, forecast_result, traffic_result = await asyncio.gather(
+    weather_result, buoy_result, alerts_result, forecast_result, traffic_result, holiday_result = await asyncio.gather(
         fetch_weather_conditions(beach["nws_station_id"]),
         fetch_ndbc_conditions(beach["buoy_station"]),
         fetch_nws_alerts(beach["latitude"], beach["longitude"]),
         fetch_nws_forecast(lat=beach["latitude"], lon=beach["longitude"]),
         fetch_traffic_conditions(lat=beach["latitude"], lon=beach["longitude"]),
+        fetch_holidays(countryCode=beach["countryCode"], year=beach["year"]),
         return_exceptions=True,
     )
 
@@ -84,6 +53,7 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
     alerts = alerts_result if not isinstance(alerts_result, Exception) else None
     forecast = forecast_result if not isinstance(forecast_result, Exception) else None
     traffic = traffic_result if not isinstance(traffic_result, Exception) else None
+    holiday = holiday_result if not isinstance(holiday_result, Exception) else None
 
     return BeachModelResponse(
         weather=parse_weather_conditions(weather) if weather else None,
@@ -91,4 +61,5 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
         buoy_data=buoy if not isinstance(buoy, Exception) else None,
         alerts=parse_alerts(alerts) if alerts else [],
         traffic=parse_traffic(traffic) if traffic else [],
+        holiday=parse_holiday(holiday) if holiday else []
     )

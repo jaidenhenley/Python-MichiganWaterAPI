@@ -26,13 +26,12 @@ def parse_holiday(data: Optional[dict]) -> list:
     if not data: 
         return []
     
-    segment = data.get("publicholidays", {})
 
-    if not segment:
-        return []
-    
-    return [Holiday(
-        date=segment["date"],
-        localName=segment["localName"],
-        name=segment["name"],
-    )]
+    return [
+        Holiday(
+        date=item["date"],
+        localName=item["localName"],
+        name=item["name"],
+    )
+    for item in data
+    ]

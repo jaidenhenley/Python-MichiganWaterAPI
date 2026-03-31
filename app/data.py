@@ -1,5 +1,6 @@
 from app.models import Beach
 from pydantic import BaseModel
+from datetime import date
 
 # Nearest NDBC buoy station IDs for reference
 # 45007 = South Lake Michigan
@@ -18,7 +19,10 @@ sample_beaches = [
         "lake": "Lake Erie",
         "buoy_station": "45214",
         "status": "Safe",
-        "nws_station_id": "KDET"
+        "nws_station_id": "KDET",
+        "countryCode": "US",
+        "year": date.today().year
+
     },
     {
         "id": 2,
@@ -29,7 +33,9 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45024",
         "status": "Advisory",
-        "nws_station_id": "KMKG"
+        "nws_station_id": "KMKG",
+        "countryCode": "US",
+        "year": date.today().year
     },
     {
         "id": 3,
@@ -40,7 +46,10 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45024",
         "status": "Safe",
-        "nws_station_id": "KMKG"
+        "nws_station_id": "KMKG",
+        "countryCode": "US",
+        "year": date.today().year
+        
     },
     {
         "id": 4,
@@ -51,7 +60,9 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45002",
         "status": "Safe",
-        "nws_station_id": "KTVC"
+        "nws_station_id": "KTVC",
+        "countryCode": "US",
+        "year": date.today().year
         
     },
     {
@@ -63,6 +74,8 @@ sample_beaches = [
         "lake": "Lake Huron",
         "buoy_station": "45008",
         "status": "Safe",
-        "nws_station_id": "KOSC"
+        "nws_station_id": "KOSC",
+        "countryCode": "US",
+        "year": date.today().year
     },
 ]
