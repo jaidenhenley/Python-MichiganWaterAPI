@@ -1,24 +1,52 @@
-import pandas as pd
+import httpx
+from fastapi import HTTPException
+from typing import Optional
 
-data_url = "https://data.gov"
+from app.models import NPSVisitation
 
-try:
-    df = pd.read_csv(data_url)
-    print("Successfully pulled NPS data")
-except Exception as e:
-    print(f"Error fetching data: {e}")
-    raise SystemExit(1)
+NPS_STATS_URL = "https://irmaservices.nps.gov/statistics/api/v2/visitation"
 
-slbe_data = df[
-    (df["ParkCode"] == "SLBE") & (df["Field"] == "Recreation Visitors")
-]
+# Michigan NPS parks with beach/lakeshore access
+MICHIGAN_BEACH_PARKS = ["SLBE", "PIRO", "ISRO"]
 
-monthly_averages = slbe_data.groupby("Month")["Value"].mean().to_dict()
 
-max_visitors = max(monthly_averages.values())
-slbe_weights = {
-    month: value / max_visitors for month, value in monthly_averages.items()
-}
+async def fetch_nps_visitation(park_code: str, year: int):
+    params = {"unitCode": park_code, "year": year}
 
-print("Calculated monthly weights from web")
-print(slbe_weights)
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.get(NPS_STATS_URL, params=params)
+
+    if response.status_code >= 500:
+        raise HTTPException(status_code=502, detail="NPS statistics service is unavailable")
+
+    response.raise_for_status()
+    return response.json()
+
+
+def parse_nps_visitation(data: list, park_code: str) -> list[NPSVisitation]:
+    if not data:
+        return []
+
+    monthly = [
+        entry for entry in data
+        if entry.get("RecreationVisitors") is not None
+    ]
+
+    if not monthly:
+        return []
+
+    max_visitors = max(entry["RecreationVisitors"] for entry in monthly)
+
+    results = []
+    for entry in monthly:
+        visitors = entry["RecreationVisitors"]
+        results.append(NPSVisitation(
+            park_code=park_code,
+            park_name=entry.get("UnitName", ""),
+            year=entry["Year"],
+            month=entry["Month"],
+            recreation_visitors=visitors,
+            crowd_weight=round(visitors / max_visitors, 4) if max_visitors else 0.0,
+        ))
+
+    return sorted(results, key=lambda x: x.month)

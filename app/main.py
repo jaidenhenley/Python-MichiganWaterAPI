@@ -6,6 +6,7 @@ from app.data import sample_beaches
 from app.models import Beach
 from app.models import Holiday
 from app.models import BeachModelResponse
+from app.models import NPSVisitation
 
 
 from dotenv import load_dotenv
@@ -21,10 +22,28 @@ from app.services.nws import parse_alerts, parse_forecast, parse_weather_conditi
 from app.services.tomtom import fetch_traffic_conditions, parse_traffic
 
 from app.services.nagerdate import fetch_holidays, parse_holiday
+from app.services.nps import fetch_nps_visitation, parse_nps_visitation, MICHIGAN_BEACH_PARKS
 
 
 
 app = FastAPI()
+
+@app.get("/nps/visitation/{park_code}", response_model=list[NPSVisitation])
+async def get_nps_visitation(park_code: str, year: int = 2024):
+    data = await fetch_nps_visitation(park_code=park_code.upper(), year=year)
+    return parse_nps_visitation(data, park_code=park_code.upper())
+
+@app.get("/nps/visitation", response_model=list[NPSVisitation])
+async def get_all_nps_visitation(year: int = 2024):
+    results = await asyncio.gather(
+        *[fetch_nps_visitation(park_code=code, year=year) for code in MICHIGAN_BEACH_PARKS],
+        return_exceptions=True,
+    )
+    all_entries = []
+    for code, data in zip(MICHIGAN_BEACH_PARKS, results):
+        if not isinstance(data, Exception):
+            all_entries.extend(parse_nps_visitation(data, park_code=code))
+    return all_entries
 
 @app.get("/holiday/{countryCode}/{year}", response_model=list[Holiday])
 async def get_holidays(countryCode: str, year: int) -> list:

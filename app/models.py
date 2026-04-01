@@ -84,6 +84,15 @@ class Holiday(BaseModel):
     name: str
 
     
+class NPSVisitation(BaseModel):
+    park_code: str
+    park_name: str
+    year: int
+    month: int
+    recreation_visitors: int
+    crowd_weight: float  # 0.0–1.0, normalized against peak month
+
+
 class BeachModelResponse(BaseModel):
     weather: Optional[WeatherConditions] = None
     forecast: List[Forecast] = []
