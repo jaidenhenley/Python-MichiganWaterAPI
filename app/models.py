@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+from datetime import date
 from typing import List
 
 
@@ -77,6 +78,20 @@ class Traffic(BaseModel):
     confidence: float
     roadClosures: bool
     
+class Holiday(BaseModel):
+    date: date
+    localName: str
+    name: str
+
+    
+class NPSVisitation(BaseModel):
+    park_code: str
+    park_name: str
+    year: int
+    month: int
+    recreation_visitors: int
+    crowd_weight: float  # 0.0–1.0, normalized against peak month
+
 
 class BeachModelResponse(BaseModel):
     weather: Optional[WeatherConditions] = None
@@ -84,3 +99,4 @@ class BeachModelResponse(BaseModel):
     buoy_data: Optional[WaterConditions] = None
     alerts: List[WeatherAlert] = []
     traffic: List[Traffic] = []
+    holiday: List[Holiday] = []
