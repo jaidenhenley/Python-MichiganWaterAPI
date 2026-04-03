@@ -19,7 +19,6 @@ sample_beaches = [
         "lake": "Lake Erie",
         "buoy_station": "45214",
         "status": "Safe",
-        "nws_station_id": "KDET",
         "countryCode": "US",
         "year": date.today().year
 
@@ -33,7 +32,6 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45024",
         "status": "Advisory",
-        "nws_station_id": "KMKG",
         "countryCode": "US",
         "year": date.today().year
     },
@@ -46,7 +44,6 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45024",
         "status": "Safe",
-        "nws_station_id": "KMKG",
         "countryCode": "US",
         "year": date.today().year
         
@@ -60,7 +57,6 @@ sample_beaches = [
         "lake": "Lake Michigan",
         "buoy_station": "45002",
         "status": "Safe",
-        "nws_station_id": "KTVC",
         "countryCode": "US",
         "year": date.today().year
         
@@ -74,7 +70,6 @@ sample_beaches = [
         "lake": "Lake Huron",
         "buoy_station": "45008",
         "status": "Safe",
-        "nws_station_id": "KOSC",
         "countryCode": "US",
         "year": date.today().year
     },
