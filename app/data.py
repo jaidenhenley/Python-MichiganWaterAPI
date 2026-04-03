@@ -17,7 +17,7 @@ sample_beaches = [
         "latitude": 42.3416,
         "longitude": -82.9625,
         "lake": "Lake Erie",
-        "buoy_station": "45214",
+        "buoyStation": "45214",
         "status": "Safe",
         "countryCode": "US",
         "year": date.today().year
@@ -30,7 +30,7 @@ sample_beaches = [
         "latitude": 43.0564,
         "longitude": -86.2545,
         "lake": "Lake Michigan",
-        "buoy_station": "45024",
+        "buoyStation": "45024",
         "status": "Advisory",
         "countryCode": "US",
         "year": date.today().year
@@ -42,7 +42,7 @@ sample_beaches = [
         "latitude": 43.6753,
         "longitude": -86.5214,
         "lake": "Lake Michigan",
-        "buoy_station": "45024",
+        "buoyStation": "45024",
         "status": "Safe",
         "countryCode": "US",
         "year": date.today().year
@@ -55,7 +55,7 @@ sample_beaches = [
         "latitude": 44.8779,
         "longitude": -86.0590,
         "lake": "Lake Michigan",
-        "buoy_station": "45002",
+        "buoyStation": "45002",
         "status": "Safe",
         "countryCode": "US",
         "year": date.today().year
@@ -68,7 +68,7 @@ sample_beaches = [
         "latitude": 44.2572,
         "longitude": -83.4467,
         "lake": "Lake Huron",
-        "buoy_station": "45008",
+        "buoyStation": "45008",
         "status": "Safe",
         "countryCode": "US",
         "year": date.today().year
