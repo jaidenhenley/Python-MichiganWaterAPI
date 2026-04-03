@@ -27,7 +27,7 @@ class Beach(BaseModel):
     latitude: float
     longitude: float
     lake: str
-    buoy_station: str
+    buoyStation: str
     nws_station_id: Optional[str] = None
 
 class WaterConditions(BaseModel):
