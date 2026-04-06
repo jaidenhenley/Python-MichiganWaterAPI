@@ -66,6 +66,7 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
 
     return BeachModelResponse(
         beach=beach["name"],
+        alerts=[]
         buoyData=buoy if not isinstance(buoy, Exception) else None,
         traffic=parse_traffic(traffic) if traffic else [],
         holiday=parse_holiday(holiday) if holiday else []
