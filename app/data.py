@@ -11,7 +11,7 @@ from datetime import date
 # 45024 = East Lake Michigan (near Grand Haven)
 # 45214 = Lake Erie (near Detroit)
 
-sample_beaches = [
+beaches = [
     {
         "id": 1,
         "name": "Belle Isle Beach",

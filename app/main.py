@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Query
 from typing import Optional
 from datetime import date
 
-from app.data import sample_beaches
+from app.data import beaches
 from app.models import Beach
 from app.models import BeachModelResponse
 from app.models import NPSVisitation
@@ -44,7 +44,7 @@ async def get_all_nps_visitation(year: int = 2024):
 
 @app.get("/beaches/{beach_id}/details", response_model=BeachModelResponse)
 async def get_beach(beach_id: int) -> BeachModelResponse:
-    beach = next((b for b in sample_beaches if b["id"] == beach_id), None)
+    beach = next((b for b in beaches if b["id"] == beach_id), None)
     if not beach: 
         raise HTTPException(status_code=404, detail="Beach not found")
 
