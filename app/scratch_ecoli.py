@@ -4,6 +4,7 @@ import io
 import pandas as pd
 import json
 import math
+from datetime import datetime, timedelta
 
 with open("app/coastcast_beach.json") as f:
     COASTCAST_SAMPLE = json.load(f)
@@ -20,7 +21,10 @@ def filter_out_stream_sites(stations: pd.DataFrame) -> pd.DataFrame:
     is_stream = name_lower.apply(lambda name: any(kw in name for kw in STREAM_KEYWORDS))
     return stations[~is_stream]
 
-def fetch_michigan_ecoli(start: str = "01-01-2026", end: str = "04-27-2025") -> pd.DataFrame:
+def fetch_michigan_ecoli(days_back: int = 30) -> pd.DataFrame:
+    end = datetime.now().strftime("%m-%d-%Y")
+    start = (datetime.now() - timedelta(days=days_back)).strftime("%m-%d-%Y")
+
     url = (
          "https://www.waterqualitydata.us/data/Result/search"
         f"?statecode=US:26"
@@ -108,38 +112,30 @@ def match_beaches_to_stations(beaches, stations: pd.DataFrame, max_miles: float 
         })
     return matches
 
+
 if __name__ == "__main__":
-    df = fetch_michigan_ecoli(start="01-01-2026", end="04-27-2026")
-    print(f"Rows: {len(df)}")
-    if len(df) > 0:
-        print(df.head(10))
-        print("Date range:", df["ActivityStartDate"].min(), "to", df["ActivityStartDate"].max())
-    else:
-        print("No 2026 readings yet.")
-
-# if __name__ == "__main__":
-#     print(f"Loaded {len(COASTCAST_SAMPLE)} beaches from JSON")
+    print(f"Loaded {len(COASTCAST_SAMPLE)} beaches from JSON")
     
-#     stations = fetch_michigan_stations()
-#     stations = filter_out_stream_sites(stations)
-#     print(f"Stations after stream filter: {len(stations)}")
+    stations = fetch_michigan_stations()
+    stations = filter_out_stream_sites(stations)
+    print(f"Stations after stream filter: {len(stations)}")
 
-#     matches = match_beaches_to_stations(COASTCAST_SAMPLE, stations, max_miles=1.0)
-#     matched_count = sum(1 for m in matches if m["matched"])
+    matches = match_beaches_to_stations(COASTCAST_SAMPLE, stations, max_miles=1.0)
+    matched_count = sum(1 for m in matches if m["matched"])
     
-#     print(f"Matched {matched_count}/{len(matches)} beaches\n")
+    print(f"Matched {matched_count}/{len(matches)} beaches\n")
 
-#     # Map BeachID to StationID
-#     beach_to_station = {
-#         m["beach_id"]: m["station_id"]
-#         for m in matches if m["matched"]
-#     }
+    # Map BeachID to StationID
+    beach_to_station = {
+        m["beach_id"]: m["station_id"]
+        for m in matches if m["matched"]
+    }
 
-#     import os
-#     output_path = "app/data/beach_station_map.json"
-#     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    import os
+    output_path = "app/data/beach_station_map.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-#     with open(output_path, "w") as f:
-#         json.dump(beach_to_station, f, indent=2)
+    with open(output_path, "w") as f:
+        json.dump(beach_to_station, f, indent=2)
 
-#     print(f"Wrote {len(beach_to_station)} mappings to {output_path}")
+    print(f"Wrote {len(beach_to_station)} mappings to {output_path}")
