@@ -1,10 +1,12 @@
 import httpx
 
-MICHIGAN_BEACH_ZONES = [
-    "LMZ644", "LMZ645", "LMZ646",
-    "LMZ740", "LMZ741", "LMZ742",
-    "LHZ421", "LHZ422", "LHZ423",
-]
+LAKE_ZONES: dict[str, list[str]] = {
+    "Lake Michigan":  ["LMZ644", "LMZ645", "LMZ646", "LMZ740", "LMZ741", "LMZ742"],
+    "Lake Huron":     ["LHZ421", "LHZ422", "LHZ423"],
+    "Lake Erie":      ["LEZ432", "LEZ433", "LEZ440"],
+    "Lake Superior":  ["LSZ180", "LSZ181", "LSZ182"],
+    "Detroit River":  ["LEZ432"],
+}
 
 BEACH_ALERT_TYPES = [
     "Beach Hazard Statement",
@@ -47,9 +49,12 @@ async def fetch_nws_beach_alerts(zones: list[str]) -> list[dict]:
     return alerts
 
 
-async def get_beach_alerts_safe() -> list[dict]:
+async def get_beach_alerts_safe(lake: str) -> list[dict]:
     try:
-        return await fetch_nws_beach_alerts(MICHIGAN_BEACH_ZONES)
+        zones = LAKE_ZONES.get(lake, [])
+        if not zones:
+            return []
+        return await fetch_nws_beach_alerts(zones)
     except Exception as e:
         print(f"[NWS] Error fetching beach alerts: {e}")
         return []

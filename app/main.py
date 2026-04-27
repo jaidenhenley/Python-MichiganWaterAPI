@@ -44,7 +44,7 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
 
     buoy_result, alerts_result = await asyncio.gather(
         fetch_ndbc_conditions(beach["buoyStation"]),
-        get_beach_alerts_safe(),
+        get_beach_alerts_safe(beach["lake"]),
         return_exceptions=True,
     )
 
