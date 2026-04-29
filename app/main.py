@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from datetime import date
 
 from app.data import beaches
-from app.models import BeachModelResponse, Beach, NPSVisitation, BeachAlert
+from app.models import BeachModelResponse, Beach, NPSVisitation
 
 from dotenv import load_dotenv
 load_dotenv()
