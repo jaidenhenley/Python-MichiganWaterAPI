@@ -63,3 +63,23 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
         holiday=is_holiday(date.today()),
         waterQuality=[water_quality] if water_quality is not None else []
     )
+
+@app.get("/beaches/{beach_id}/alerts")
+async def get_beach_alerts(beach_id: int):
+    beach = next((b for b in beaches if b["id"] == beach_id), None)
+    if not beach:
+        raise HTTPException(status_code=404, detail="Beach not found")
+
+    alerts_result, water_quality = await asyncio.gather(
+        get_beach_alerts_safe(beach["lake"]),
+        asyncio.to_thread(get_water_quality_safe, beach_id),
+        return_exceptions=True,
+    )
+
+    alerts = alerts_result if not isinstance(alerts_result, Exception) else []
+    wq = water_quality if not isinstance(water_quality, Exception) else None
+
+    return {
+        "alerts": alerts or None,
+        "waterQuality": [wq] if wq is not None else None
+    }

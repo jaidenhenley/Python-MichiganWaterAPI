@@ -72,4 +72,3 @@ class BeachModelResponse(BaseModel):
     alerts: List[BeachAlert] = []
     holiday: bool = False
     waterQuality: List[WaterQuality] = []
-
