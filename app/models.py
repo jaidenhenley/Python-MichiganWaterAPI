@@ -71,4 +71,4 @@ class BeachModelResponse(BaseModel):
     buoyData: Optional[WaterConditions] = None
     alerts: List[BeachAlert] = []
     holiday: bool = False
-    waterQuality: List[WaterQuality] = []
+    waterQuality: Optional[WaterQuality] = None

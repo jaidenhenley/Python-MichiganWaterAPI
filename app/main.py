@@ -61,7 +61,7 @@ async def get_beach(beach_id: int) -> BeachModelResponse:
         alerts=alerts,
         buoyData=buoy,
         holiday=is_holiday(date.today()),
-        waterQuality=[water_quality] if water_quality is not None else []
+        waterQuality=water_quality
     )
 
 @app.get("/beaches/{beach_id}/alerts")
@@ -81,5 +81,5 @@ async def get_beach_alerts(beach_id: int):
 
     return {
         "alerts": alerts or None,
-        "waterQuality": [wq] if wq is not None else None
+        "waterQuality": wq
     }
