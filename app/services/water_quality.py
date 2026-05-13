@@ -77,9 +77,12 @@ def get_water_quality(beach_id: int) -> Optional[WaterQuality]:
     except (ValueError, TypeError):
         return None
     
-    if value < 235:
+    ECOLI_SAFE_THRESHOLD = 235
+    ECOLI_CAUTION_THRESHOLD = 300
+
+    if value < ECOLI_SAFE_THRESHOLD:
         status = "safe"
-    elif value < 300:
+    elif value < ECOLI_CAUTION_THRESHOLD:
         status = "caution"
     else:
         status = "unsafe"
